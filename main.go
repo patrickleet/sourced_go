@@ -2,21 +2,21 @@ package main
 
 import (
 	"fmt"
-	"sourced_go/models"
+	"sourced_go/todos"
 )
 
 func main() {
-	repository := models.NewToDoRepository()
-	todo := models.NewToDo()
+	repository := todos.NewToDoRepository()
+	todo := todos.NewToDo()
 
 	// Register event listeners
 	repository.On("ToDoInitialized", func(data interface{}) {
-		event := data.(models.ToDoInitialized)
+		event := data.(todos.ToDoInitialized)
 		fmt.Printf("Task initialized: %v\n", event.Task)
 	})
 
 	repository.On("ToDoCompleted", func(data interface{}) {
-		event := data.(models.ToDoCompleted)
+		event := data.(todos.ToDoCompleted)
 		fmt.Printf("Task completed: %v\n", event.ID)
 	})
 

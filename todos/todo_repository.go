@@ -1,4 +1,4 @@
-package models
+package todos
 
 import (
 	"sourced_go/repository"
