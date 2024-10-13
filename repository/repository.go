@@ -2,6 +2,7 @@ package repository
 
 import (
 	"sourced_go/entity"
+	"sourced_go/events"
 	"sync"
 )
 
@@ -26,6 +27,11 @@ func (r *Repository) FindByID(id string) *entity.Entity {
 	if commands, exists := r.storage[id]; exists {
 		e := &entity.Entity{ID: id}
 		e.Commands = commands // Load commands, but don't rehydrate yet
+
+		// Ensure the EventEmitter is initialized during rehydration
+		if e.EventEmitter == nil {
+			e.EventEmitter = events.NewEventEmitter() // Initialize it properly
+		}
 		return e
 	}
 	return nil
