@@ -1,12 +1,12 @@
 package todos
 
 import (
-	"sourced_go/entity"
+	"sourced_go/pkg/sourced"
 )
 
 // ToDo represents the ToDo model
 type ToDo struct {
-	*entity.Entity
+	*sourced.Entity
 	UserId    string
 	Task      string
 	Completed bool
@@ -15,7 +15,7 @@ type ToDo struct {
 // NewToDo creates a new ToDo instance
 func NewToDo() *ToDo {
 	return &ToDo{
-		Entity: entity.NewEntity(),
+		Entity: sourced.NewEntity(),
 	}
 }
 
@@ -41,7 +41,7 @@ func (t *ToDo) Complete() {
 }
 
 // ReplayCommand replays the commands for the ToDo entity
-func (t *ToDo) ReplayCommand(cmd entity.CommandRecord) {
+func (t *ToDo) ReplayCommand(cmd sourced.CommandRecord) {
 	switch cmd.CommandName {
 	case "Initialize":
 		// Ensure that the correct arguments are passed and task is set

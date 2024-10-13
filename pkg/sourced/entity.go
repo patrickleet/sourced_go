@@ -1,7 +1,6 @@
-package entity
+package sourced
 
 import (
-	"sourced_go/events"
 	"time"
 )
 
@@ -41,13 +40,13 @@ type Entity struct {
 	Replaying       bool
 	SnapshotVersion int
 	Timestamp       time.Time
-	EventEmitter    *events.EventEmitter // Embed the EventEmitter
+	EventEmitter    *EventEmitter // Embed the EventEmitter
 }
 
 // NewEntity creates a new base entity with an event emitter
 func NewEntity() *Entity {
 	return &Entity{
-		EventEmitter: events.NewEventEmitter(), // Initialize the embedded EventEmitter
+		EventEmitter: NewEventEmitter(), // Initialize the embedded EventEmitter
 	}
 }
 

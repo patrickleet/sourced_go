@@ -1,18 +1,18 @@
 package todos
 
 import (
-	"sourced_go/repository"
+	"sourced_go/pkg/sourced"
 )
 
 // ToDoRepository provides domain-specific behavior for ToDo entities
 type ToDoRepository struct {
-	*repository.Repository // Extend the generic repository
+	*sourced.Repository // Extend the generic repository
 }
 
 // NewToDoRepository initializes a new ToDoRepository
 func NewToDoRepository() *ToDoRepository {
 	return &ToDoRepository{
-		Repository: repository.NewRepository(),
+		Repository: sourced.NewRepository(),
 	}
 }
 

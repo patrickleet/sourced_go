@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"sourced_go/todos"
+	"sourced_go/example/todos"
 )
 
 func main() {
