@@ -18,16 +18,16 @@ type Event interface {
 }
 
 // EventType returns the event type
-func (e GenericEvent) EventType() string {
+func (e LocalEvent) EventType() string {
 	return e.Type
 }
 
 // GetData returns the event data
-func (e GenericEvent) GetData() interface{} {
+func (e LocalEvent) GetData() interface{} {
 	return e.Data
 }
 
-type GenericEvent struct {
+type LocalEvent struct {
 	Type string      // The type of the event (e.g., "Initialized", "Completed")
 	Data interface{} // The event's associated data
 }
@@ -51,8 +51,8 @@ func NewEntity() *Entity {
 	}
 }
 
-// DigestCommand adds a command to the entity if we are not replaying
-func (e *Entity) DigestCommand(name string, args ...interface{}) {
+// Digest adds a command to the entity if we are not replaying
+func (e *Entity) Digest(name string, args ...interface{}) {
 	// Only digest new commands if we are not replaying commands
 	if e.Replaying {
 		return

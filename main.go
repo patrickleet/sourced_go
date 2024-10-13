@@ -14,15 +14,15 @@ func main() {
 
 	// Register event listeners
 	todo.On("ToDoInitialized", func(data interface{}) {
-		eventData := data.(map[string]string)
-		fmt.Printf("Task initialized: %v\n", eventData)
+		todoInstance := data.(*todos.ToDo)
+		fmt.Printf("Task initialized: ID=%v, Task=%v, Completed=%v\n", todoInstance.ID, todoInstance.Task, todoInstance.Completed)
 	})
 
 	// This will NOT be triggered in this example, because Complete() is not called
 	// on this object `todo` - it is called later on by the rehydrated object `rehydratedTodo`
 	todo.On("ToDoCompleted", func(data interface{}) {
-		eventData := data.(map[string]string)
-		fmt.Printf("Task completed: %v\n", eventData)
+		todoInstance := data.(*todos.ToDo) // Cast the entity reference
+		fmt.Printf("Task completed: ID=%v, Task=%v, Completed=%v\n", todoInstance.ID, todoInstance.Task, todoInstance.Completed)
 	})
 
 	// Initialize and complete the task
@@ -35,24 +35,22 @@ func main() {
 	rehydratedTodo := todoRepo.FindByID("todo-id-1")
 
 	if rehydratedTodo != nil {
-		fmt.Println("Found ToDo:", rehydratedTodo.ID, rehydratedTodo.Task, rehydratedTodo.Completed)
+		fmt.Println("Found ToDo", rehydratedTodo.ID, rehydratedTodo.Task, rehydratedTodo.Completed)
+
+		// Re-bind event listeners to the rehydrated ToDo
+		rehydratedTodo.On("ToDoCompleted", func(data interface{}) {
+			todoInstance := data.(*todos.ToDo) // Cast the entity reference
+			fmt.Printf("Rehydrated Task completed: ID=%v, Task=%v, Completed=%v\n", todoInstance.ID, todoInstance.Task, todoInstance.Completed)
+		})
+
+		// Complete the rehydrated task
+		rehydratedTodo.Complete()
+		fmt.Println("Reyhdrated ToDo Completed", rehydratedTodo.ID, rehydratedTodo.Task, rehydratedTodo.Completed)
+
+		todoRepo.Commit(rehydratedTodo)
 	} else {
 		fmt.Println("ToDo not found.")
 	}
-
-	// This one will trigger - I point this out to say be careful with
-	// binding events to objects and then rehydrating them...
-	// I don't see any reason you'd ever need to create an object and then
-	// rehydrate it in the same handler, but it's something to be aware of.
-	rehydratedTodo.On("ToDoCompleted", func(data interface{}) {
-		eventData := data.(map[string]string)
-		fmt.Printf("Task completed: %v\n", eventData)
-	})
-
-	rehydratedTodo.Complete()
-	fmt.Println("Reyhdrated ToDo Completed:", rehydratedTodo.ID, rehydratedTodo.Task, rehydratedTodo.Completed)
-
-	todoRepo.Commit(rehydratedTodo)
 
 	// Retrieve the ToDo by ID again
 	todo3 := todoRepo.FindByID("todo-id-1")
