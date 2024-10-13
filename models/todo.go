@@ -1,5 +1,9 @@
 package models
 
+import (
+	"sourced_go/entity"
+)
+
 type ToDoInitialized struct {
 	ID      string
 	Address string
@@ -19,7 +23,7 @@ func (e ToDoCompleted) EventType() string {
 }
 
 type ToDo struct {
-	*Entity
+	*entity.Entity
 	Address   string
 	Task      string
 	Completed bool
@@ -28,7 +32,7 @@ type ToDo struct {
 
 func NewToDo() *ToDo {
 	return &ToDo{
-		Entity: NewEntity(),
+		Entity: entity.NewEntity(),
 	}
 }
 

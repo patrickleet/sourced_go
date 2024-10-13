@@ -1,24 +1,28 @@
 package models
 
-import "sync"
+import (
+	"sourced_go/entity"
+	"sourced_go/events"
+	"sync"
+)
 
 // Repository manages entities and emits events after successful commits
 type Repository struct {
-	storage      map[string]*Entity // In-memory storage for entities
-	EventEmitter *EventEmitter      // EventEmitter for emitting events after commit
-	mu           sync.Mutex         // Mutex for thread safety
+	storage      map[string]*entity.Entity // In-memory storage for entities
+	EventEmitter *events.EventEmitter      // EventEmitter for emitting events after commit
+	mu           sync.Mutex                // Mutex for thread safety
 }
 
 // NewRepository creates a new repository instance
 func NewRepository() *Repository {
 	return &Repository{
-		storage:      make(map[string]*Entity),
-		EventEmitter: NewEventEmitter(), // Initialize the event emitter
+		storage:      make(map[string]*entity.Entity),
+		EventEmitter: events.NewEventEmitter(), // Initialize the event emitter
 	}
 }
 
 // Save stores the entity and commits events
-func (r *Repository) Save(entity *Entity) {
+func (r *Repository) Save(entity *entity.Entity) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -30,7 +34,7 @@ func (r *Repository) Save(entity *Entity) {
 }
 
 // Commit emits the events after a successful commit
-func (r *Repository) Commit(entity *Entity) {
+func (r *Repository) Commit(entity *entity.Entity) {
 	// Emit events only after a successful "commit"
 	for _, event := range entity.EventsToEmit {
 		r.EventEmitter.Emit(event.EventType(), event)
@@ -41,7 +45,7 @@ func (r *Repository) Commit(entity *Entity) {
 }
 
 // FindByID retrieves an entity from the repository by its ID
-func (r *Repository) FindByID(id string) *Entity {
+func (r *Repository) FindByID(id string) *entity.Entity {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 

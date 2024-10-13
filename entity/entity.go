@@ -1,6 +1,9 @@
-package models
+package entity
 
-import "time"
+import (
+	"sourced_go/events"
+	"time"
+)
 
 type CommandRecord struct {
 	CommandName string
@@ -19,12 +22,12 @@ type Entity struct {
 	Replaying       bool
 	SnapshotVersion int
 	Timestamp       time.Time
-	EventEmitter    *EventEmitter
+	EventEmitter    *events.EventEmitter
 }
 
 func NewEntity() *Entity {
 	return &Entity{
-		EventEmitter: NewEventEmitter(),
+		EventEmitter: events.NewEventEmitter(),
 	}
 }
 
