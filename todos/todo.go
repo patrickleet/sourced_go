@@ -7,7 +7,7 @@ import (
 // ToDo represents the ToDo model
 type ToDo struct {
 	*entity.Entity
-	Address   string
+	UserId    string
 	Task      string
 	Completed bool
 }
@@ -20,14 +20,13 @@ func NewToDo() *ToDo {
 }
 
 // Initialize sets up the ToDo task and enqueues the initialized event
-func (t *ToDo) Initialize(id, address, task string) {
+func (t *ToDo) Initialize(id, userId, task string) {
 	t.ID = id
-	t.Address = address
+	t.UserId = userId
 	t.Task = task
 	t.Completed = false
 
-	t.Digest("Initialize", id, address, task)
-
+	t.Digest("Initialize", id, userId, task)
 	t.Enqueue("ToDoInitialized", t)
 }
 
@@ -35,8 +34,8 @@ func (t *ToDo) Initialize(id, address, task string) {
 func (t *ToDo) Complete() {
 	if !t.Completed {
 		t.Completed = true
-		t.Digest("Complete", t.ID)
 
+		t.Digest("Complete", t.ID)
 		t.Enqueue("ToDoCompleted", t)
 	}
 }
@@ -57,7 +56,7 @@ func (t *ToDo) ReplayCommand(cmd entity.CommandRecord) {
 func (t *ToDo) Snapshot() map[string]interface{} {
 	return map[string]interface{}{
 		"ID":        t.ID,
-		"Address":   t.Address,
+		"UserId":    t.UserId,
 		"Task":      t.Task,
 		"Completed": t.Completed,
 	}
