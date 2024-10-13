@@ -4,10 +4,10 @@ import (
 	"time"
 )
 
-// CommandRecord holds information about a digested command
-type CommandRecord struct {
-	CommandName string
-	Args        []interface{}
+// EventRecord holds information about a digested event
+type EventRecord struct {
+	EventName string
+	Args      []interface{}
 }
 
 // Event interface defines an event type for the system
@@ -35,7 +35,7 @@ type LocalEvent struct {
 type Entity struct {
 	ID              string
 	Version         int
-	Commands        []CommandRecord
+	Events          []EventRecord
 	EventsToEmit    []Event
 	Replaying       bool
 	SnapshotVersion int
@@ -50,15 +50,15 @@ func NewEntity() *Entity {
 	}
 }
 
-// Digest adds a command to the entity if we are not replaying
+// Digest adds a event to the entity if we are not replaying
 func (e *Entity) Digest(name string, args ...interface{}) {
-	// Only digest new commands if we are not replaying commands
+	// Only digest new events if we are not replaying events
 	if e.Replaying {
 		return
 	}
-	e.Commands = append(e.Commands, CommandRecord{
-		CommandName: name,
-		Args:        args,
+	e.Events = append(e.Events, EventRecord{
+		EventName: name,
+		Args:      args,
 	})
 	e.Version++
 	e.Timestamp = time.Now()
@@ -82,17 +82,17 @@ func (e *Entity) EmitQueuedEvents() {
 	e.EventsToEmit = nil // Clear the events after emitting
 }
 
-// Rehydrate replays the commands to rebuild the entity's state
+// Rehydrate replays the events to rebuild the entity's state
 func (e *Entity) Rehydrate() {
 	e.Replaying = true
-	for _, commandRecord := range e.Commands {
-		e.replayCommand(commandRecord)
+	for _, EventRecord := range e.Events {
+		e.ReplayEvent(EventRecord)
 	}
 	e.Replaying = false
 }
 
-// Replay commands (override this in domain models)
-func (e *Entity) replayCommand(commandRecord CommandRecord) {
+// Replay events (override this in domain models)
+func (e *Entity) ReplayEvent(EventRecord EventRecord) {
 	// Domain-specific models will override this method
 }
 

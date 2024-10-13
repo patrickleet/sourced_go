@@ -40,16 +40,16 @@ func (t *ToDo) Complete() {
 	}
 }
 
-// ReplayCommand replays the commands for the ToDo entity
-func (t *ToDo) ReplayCommand(cmd sourced.CommandRecord) {
-	switch cmd.CommandName {
+// ReplayEvent replays the events for the ToDo entity
+func (t *ToDo) ReplayEvent(event sourced.EventRecord) {
+	switch event.EventName {
 	case "Initialize":
 		// Ensure that the correct arguments are passed and task is set
-		t.Initialize(cmd.Args[0].(string), cmd.Args[1].(string), cmd.Args[2].(string))
+		t.Initialize(event.Args[0].(string), event.Args[1].(string), event.Args[2].(string))
 	case "Complete":
 		t.Complete()
 	default:
-		// Handle unknown commands if necessary
+		// Handle unknown events if necessary
 	}
 }
 

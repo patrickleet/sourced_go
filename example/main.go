@@ -41,7 +41,7 @@ func main() {
 		rehydratedTodo.On("ToDoCompleted", func(data interface{}) {
 			todoInstance := data.(*todos.ToDo) // Cast the entity reference
 			snapshot := todoInstance.Snapshot()
-			fmt.Println("Rehydrated Task completed:", snapshot)
+			fmt.Println("on ToDoCompleted", snapshot)
 		})
 
 		// Complete the rehydrated task

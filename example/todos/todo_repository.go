@@ -24,12 +24,12 @@ func (r *ToDoRepository) FindByID(id string) *ToDo {
 		return nil
 	}
 
-	// Now rehydrate the specific ToDo from the entity's commands
+	// Now rehydrate the specific ToDo from the entity's events
 	todo := &ToDo{Entity: rehydratedEntity}
 	todo.Replaying = true // Set replaying flag to prevent digesting during rehydration
 
-	for _, cmd := range rehydratedEntity.Commands {
-		todo.ReplayCommand(cmd)
+	for _, cmd := range rehydratedEntity.Events {
+		todo.ReplayEvent(cmd)
 	}
 
 	todo.Replaying = false // Reset replaying flag

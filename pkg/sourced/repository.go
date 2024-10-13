@@ -4,16 +4,16 @@ import (
 	"sync"
 )
 
-// Repository manages command logs for event-sourced entities
+// Repository manages events logs for event-sourced entities
 type Repository struct {
-	storage map[string][]CommandRecord
+	storage map[string][]EventRecord
 	mu      sync.Mutex
 }
 
 // NewRepository initializes a new repository
 func NewRepository() *Repository {
 	return &Repository{
-		storage: make(map[string][]CommandRecord),
+		storage: make(map[string][]EventRecord),
 	}
 }
 
@@ -22,9 +22,9 @@ func (r *Repository) FindByID(id string) *Entity {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	if commands, exists := r.storage[id]; exists {
+	if events, exists := r.storage[id]; exists {
 		e := &Entity{ID: id}
-		e.Commands = commands // Load commands, but don't rehydrate yet
+		e.Events = events // Load events, but don't rehydrate yet
 
 		// Ensure the EventEmitter is initialized during rehydration
 		if e.EventEmitter == nil {
@@ -35,13 +35,13 @@ func (r *Repository) FindByID(id string) *Entity {
 	return nil
 }
 
-// Commit stores the commands executed on the entity
+// Commit stores the events executed on the entity
 func (r *Repository) Commit(e *Entity) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// Store the command log (list of commands)
-	r.storage[e.ID] = e.Commands
+	// Store the events log (list of events)
+	r.storage[e.ID] = e.Events
 
 	// Emit all queued events
 	e.EmitQueuedEvents()
