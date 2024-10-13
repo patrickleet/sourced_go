@@ -18,6 +18,8 @@ func main() {
 		fmt.Printf("Task initialized: %v\n", eventData)
 	})
 
+	// This will NOT be triggered in this example, because Complete() is not called
+	// on this object `todo` - it is called later on by the rehydrated object `rehydratedTodo`
 	todo.On("ToDoCompleted", func(data interface{}) {
 		eventData := data.(map[string]string)
 		fmt.Printf("Task completed: %v\n", eventData)
@@ -33,13 +35,30 @@ func main() {
 	rehydratedTodo := todoRepo.FindByID("todo-id-1")
 
 	if rehydratedTodo != nil {
-		fmt.Println("Found ToDo", rehydratedTodo.ID, rehydratedTodo.Task, rehydratedTodo.Completed)
+		fmt.Println("Found ToDo:", rehydratedTodo.ID, rehydratedTodo.Task, rehydratedTodo.Completed)
 	} else {
 		fmt.Println("ToDo not found.")
 	}
 
-	rehydratedTodo.Complete()
-	fmt.Println("Reyhdrated ToDo Completed", rehydratedTodo.ID, rehydratedTodo.Task, rehydratedTodo.Completed)
+	// This one will trigger - I point this out to say be careful with
+	// binding events to objects and then rehydrating them...
+	// I don't see any reason you'd ever need to create an object and then
+	// rehydrate it in the same handler, but it's something to be aware of.
+	rehydratedTodo.On("ToDoCompleted", func(data interface{}) {
+		eventData := data.(map[string]string)
+		fmt.Printf("Task completed: %v\n", eventData)
+	})
 
-	// todoRepo.Commit(rehydratedTodo)
+	rehydratedTodo.Complete()
+	fmt.Println("Reyhdrated ToDo Completed:", rehydratedTodo.ID, rehydratedTodo.Task, rehydratedTodo.Completed)
+
+	todoRepo.Commit(rehydratedTodo)
+
+	// Retrieve the ToDo by ID again
+	todo3 := todoRepo.FindByID("todo-id-1")
+	if todo3 != nil {
+		fmt.Println("Found ToDo again:", todo3.ID, todo3.Task, todo3.Completed)
+	} else {
+		fmt.Println("ToDo not found.")
+	}
 }

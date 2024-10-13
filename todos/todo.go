@@ -1,7 +1,6 @@
 package todos
 
 import (
-	"fmt"
 	"sourced_go/entity"
 )
 
@@ -60,9 +59,7 @@ func (t *ToDo) ReplayCommand(cmd entity.CommandRecord) {
 	switch cmd.CommandName {
 	case "Initialize":
 		// Ensure that the correct arguments are passed and task is set
-		fmt.Println("Replaying Initialize command", cmd)
 		t.Initialize(cmd.Args[0].(string), cmd.Args[1].(string), cmd.Args[2].(string))
-		fmt.Println("After init", t.Task)
 	case "Complete":
 		t.Complete()
 	default:
