@@ -1,14 +1,18 @@
 package models
 
+import (
+	"sourced_go/repository"
+)
+
 // ToDoRepository inherits from Repository and exposes event-emitting behavior
 type ToDoRepository struct {
-	*Repository // Inherits Repository and its behavior, including event handling
+	*repository.Repository // Inherits Repository and its behavior, including event handling
 }
 
 // NewToDoRepository initializes a new ToDoRepository
 func NewToDoRepository() *ToDoRepository {
 	return &ToDoRepository{
-		Repository: NewRepository(), // Initialize the base repository
+		Repository: repository.NewRepository(), // Initialize the base repository
 	}
 }
 
