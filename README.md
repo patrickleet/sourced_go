@@ -20,6 +20,12 @@ This repository demonstrates how to manage a `ToDo` task using event-sourcing, r
 
 See [`example/main.go`](https://github.com/patrickleet/sourced_go/blob/main/example/main.go). This shows how to use the repository and the event emitter with `ToDo` tasks.
 
+To run:
+
+```sh
+go run example/main.go
+```
+
 ### Key Concepts Explained
 
 1. **ToDo Creation and Initialization**: 
