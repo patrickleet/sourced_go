@@ -75,7 +75,3 @@ Feel free to open issues or submit pull requests. Contributions are welcome!
 ## License
 
 This project is licensed under the MIT License.
-
-## About
-
-This project is a Go version of the original [sourced](https://github.com/mateodelnorte/sourced) project by Matt Walters, with contributions from Patrick Lee Scott. Patrick contributed to the original version by writing repositories, refactoring, maintaining, and implementing various new features, and is now bringing these ideas into the Go ecosystem.
