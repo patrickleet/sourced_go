@@ -28,10 +28,7 @@ func (t *ToDo) Initialize(id, address, task string) {
 
 	t.Digest("Initialize", id, address, task)
 
-	t.Enqueue(entity.LocalEvent{
-		Type: "ToDoInitialized",
-		Data: t,
-	})
+	t.Enqueue("ToDoInitialized", t)
 }
 
 // Complete marks the ToDo as completed and enqueues the completed event
@@ -40,10 +37,7 @@ func (t *ToDo) Complete() {
 		t.Completed = true
 		t.Digest("Complete", t.ID)
 
-		t.Enqueue(entity.LocalEvent{
-			Type: "ToDoCompleted",
-			Data: t,
-		})
+		t.Enqueue("ToDoCompleted", t)
 	}
 }
 

@@ -65,13 +65,14 @@ func (e *Entity) Digest(name string, args ...interface{}) {
 	e.Timestamp = time.Now()
 }
 
-// Enqueue an event to be emitted during commit
-func (e *Entity) Enqueue(event Event) {
-	// Only enqueue new events if we are not replaying commands
+func (e *Entity) Enqueue(eventType string, data interface{}) {
 	if e.Replaying {
 		return
 	}
-	e.EventsToEmit = append(e.EventsToEmit, event)
+	e.EventsToEmit = append(e.EventsToEmit, LocalEvent{
+		Type: eventType,
+		Data: data,
+	})
 }
 
 // EmitQueuedEvents triggers the emission of all queued events
