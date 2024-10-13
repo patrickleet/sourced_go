@@ -51,10 +51,14 @@ func NewEntity() *Entity {
 	}
 }
 
-// DigestCommand records a command without applying state changes
-func (e *Entity) DigestCommand(commandName string, args ...interface{}) {
+// DigestCommand adds a command to the entity if we are not replaying
+func (e *Entity) DigestCommand(name string, args ...interface{}) {
+	// Only digest new commands if we are not replaying commands
+	if e.Replaying {
+		return
+	}
 	e.Commands = append(e.Commands, CommandRecord{
-		CommandName: commandName,
+		CommandName: name,
 		Args:        args,
 	})
 	e.Version++
@@ -63,6 +67,10 @@ func (e *Entity) DigestCommand(commandName string, args ...interface{}) {
 
 // Enqueue an event to be emitted during commit
 func (e *Entity) Enqueue(event Event) {
+	// Only enqueue new events if we are not replaying commands
+	if e.Replaying {
+		return
+	}
 	e.EventsToEmit = append(e.EventsToEmit, event)
 }
 

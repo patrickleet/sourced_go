@@ -19,16 +19,20 @@ func NewToDoRepository() *ToDoRepository {
 // FindByID retrieves and rehydrates a ToDo by ID
 func (r *ToDoRepository) FindByID(id string) *ToDo {
 	// Get the generic entity from the base repository
-	entity := r.Repository.FindByID(id)
-	if entity == nil {
+	rehydratedEntity := r.Repository.FindByID(id)
+	if rehydratedEntity == nil {
 		return nil
 	}
 
 	// Now rehydrate the specific ToDo from the entity's commands
-	todo := &ToDo{Entity: entity}
-	for _, cmd := range entity.Commands {
+	todo := &ToDo{Entity: rehydratedEntity}
+	todo.Replaying = true // Set replaying flag to prevent digesting during rehydration
+
+	for _, cmd := range rehydratedEntity.Commands {
 		todo.ReplayCommand(cmd)
 	}
+
+	todo.Replaying = false // Reset replaying flag
 	return todo
 }
 
