@@ -1,6 +1,9 @@
 package todos
 
-import "sourced_go/entity"
+import (
+	"fmt"
+	"sourced_go/entity"
+)
 
 // ToDo represents the ToDo model
 type ToDo struct {
@@ -27,7 +30,6 @@ func (t *ToDo) Initialize(id, address, task string) {
 	t.Removed = false
 	t.DigestCommand("Initialize", id, address, task)
 
-	// Enqueue the initialized event as a GenericEvent
 	t.Enqueue(entity.GenericEvent{
 		Type: "ToDoInitialized",
 		Data: map[string]string{
@@ -44,12 +46,26 @@ func (t *ToDo) Complete() {
 		t.Completed = true
 		t.DigestCommand("Complete", t.ID)
 
-		// Enqueue the completed event as a GenericEvent
 		t.Enqueue(entity.GenericEvent{
 			Type: "ToDoCompleted",
 			Data: map[string]string{
 				"ID": t.ID,
 			},
 		})
+	}
+}
+
+// ReplayCommand replays the commands for the ToDo entity
+func (t *ToDo) ReplayCommand(cmd entity.CommandRecord) {
+	switch cmd.CommandName {
+	case "Initialize":
+		// Ensure that the correct arguments are passed and task is set
+		fmt.Println("Replaying Initialize command", cmd)
+		t.Initialize(cmd.Args[0].(string), cmd.Args[1].(string), cmd.Args[2].(string))
+		fmt.Println("After init", t.Task)
+	case "Complete":
+		t.Complete()
+	default:
+		// Handle unknown commands if necessary
 	}
 }
