@@ -38,6 +38,30 @@ See [`example/main.go`](https://github.com/patrickleet/sourced_go/blob/main/exam
 5. **Re-completion**: 
    - After the rehydration, the `ToDo` is completed again, and the event is triggered.
 
+## Key concepts
+
+Sourced relies on the repository pattern to allow models to be clean and simple.
+
+```go
+// Get  repository
+todoRepo := todos.NewToDoRepository()
+
+// Create a new ToDo instance
+todo := todos.NewToDo()
+
+// Register event listeners
+todo.On("ToDoInitialized", func(data interface{}) {
+  todoInstance := data.(*todos.ToDo)
+  fmt.Printf("Task initialized: ID=%v, Task=%v, Completed=%v\n", todoInstance.ID, todoInstance.Task, todoInstance.Completed)
+})
+
+// Initialize and complete the task
+todo.Initialize("todo-id-1", "patrickleet", "Make sourced_go")
+
+// Commit the ToDo to the repository
+todoRepo.Commit(todo)
+```
+
 ## Contributing
 
 Feel free to open issues or submit pull requests. Contributions are welcome!
