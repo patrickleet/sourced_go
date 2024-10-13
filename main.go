@@ -40,7 +40,8 @@ func main() {
 		// Re-bind event listeners to the rehydrated ToDo
 		rehydratedTodo.On("ToDoCompleted", func(data interface{}) {
 			todoInstance := data.(*todos.ToDo) // Cast the entity reference
-			fmt.Printf("Rehydrated Task completed: ID=%v, Task=%v, Completed=%v\n", todoInstance.ID, todoInstance.Task, todoInstance.Completed)
+			snapshot := todoInstance.Snapshot()
+			fmt.Println("Rehydrated Task completed:", snapshot)
 		})
 
 		// Complete the rehydrated task
