@@ -14,6 +14,22 @@ type CommandRecord struct {
 // Event interface defines an event type for the system
 type Event interface {
 	EventType() string
+	GetData() interface{}
+}
+
+// EventType returns the event type
+func (e GenericEvent) EventType() string {
+	return e.Type
+}
+
+// GetData returns the event data
+func (e GenericEvent) GetData() interface{} {
+	return e.Data
+}
+
+type GenericEvent struct {
+	Type string      // The type of the event (e.g., "Initialized", "Completed")
+	Data interface{} // The event's associated data
 }
 
 // Entity struct defines the base entity that all domain models will extend
@@ -50,17 +66,12 @@ func (e *Entity) Enqueue(event Event) {
 	e.EventsToEmit = append(e.EventsToEmit, event)
 }
 
-// Commit emits all enqueued events and clears the event queue
-func (e *Entity) Commit() {
-	e.emitQueuedEvents()
-	e.EventsToEmit = []Event{}
-}
-
-// Emit all enqueued events during commit
-func (e *Entity) emitQueuedEvents() {
+// EmitQueuedEvents triggers the emission of all queued events
+func (e *Entity) EmitQueuedEvents() {
 	for _, event := range e.EventsToEmit {
-		e.EventEmitter.Emit(event.EventType(), event)
+		e.Emit(event.EventType(), event.GetData())
 	}
+	e.EventsToEmit = nil // Clear the events after emitting
 }
 
 // Rehydrate replays the commands to rebuild the entity's state

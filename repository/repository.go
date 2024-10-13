@@ -2,52 +2,42 @@ package repository
 
 import (
 	"sourced_go/entity"
-	"sourced_go/events"
 	"sync"
 )
 
-// Repository manages entities and emits events after successful commits
+// Repository manages entities and commits events
 type Repository struct {
-	storage      map[string]*entity.Entity // In-memory storage for entities
-	EventEmitter *events.EventEmitter      // EventEmitter for emitting events after commit
-	mu           sync.Mutex                // Mutex for thread safety
+	storage map[string]*entity.Entity
+	mu      sync.Mutex
 }
 
-// NewRepository creates a new repository instance
+// NewRepository initializes a new repository with an in-memory storage
 func NewRepository() *Repository {
 	return &Repository{
-		storage:      make(map[string]*entity.Entity),
-		EventEmitter: events.NewEventEmitter(), // Initialize the event emitter
+		storage: make(map[string]*entity.Entity),
 	}
 }
 
-// Save stores the entity and commits events
-func (r *Repository) Save(entity *entity.Entity) {
+// Commit stores the entity and commits its events
+func (r *Repository) Commit(e *entity.Entity) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// Simulate storing the entity (in-memory in this case)
-	r.storage[entity.ID] = entity
+	// Store the entity in the in-memory map using its ID as the key
+	r.storage[e.ID] = e
 
-	// Commit the entity, which will trigger event emission
-	r.Commit(entity)
+	// Call the entity's EmitQueuedEvents method to emit and clear enqueued events
+	e.EmitQueuedEvents()
 }
 
-// Commit emits the events after a successful commit
-func (r *Repository) Commit(entity *entity.Entity) {
-	// Emit events only after a successful "commit"
-	for _, event := range entity.EventsToEmit {
-		r.EventEmitter.Emit(event.EventType(), event)
-	}
-
-	// Clear the events after emitting
-	entity.Commit()
-}
-
-// FindByID retrieves an entity from the repository by its ID
+// FindByID retrieves an entity by its ID from the in-memory storage
 func (r *Repository) FindByID(id string) *entity.Entity {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	return r.storage[id]
+	// Lookup the entity by its ID in the map
+	if entity, exists := r.storage[id]; exists {
+		return entity
+	}
+	return nil
 }
