@@ -2,7 +2,7 @@ package events
 
 import "sync"
 
-// EventEmitter is a struct that holds event listeners
+// EventEmitter struct for event subscription and emission
 type EventEmitter struct {
 	listeners map[string][]func(data interface{})
 	mu        sync.RWMutex
@@ -15,14 +15,14 @@ func NewEventEmitter() *EventEmitter {
 	}
 }
 
-// On registers a listener for a given event
+// On registers an event listener for a given event
 func (emitter *EventEmitter) On(event string, listener func(data interface{})) {
 	emitter.mu.Lock()
 	defer emitter.mu.Unlock()
 	emitter.listeners[event] = append(emitter.listeners[event], listener)
 }
 
-// Emit triggers an event and calls all its listeners
+// Emit triggers all listeners for an event
 func (emitter *EventEmitter) Emit(event string, data interface{}) {
 	emitter.mu.RLock()
 	defer emitter.mu.RUnlock()
