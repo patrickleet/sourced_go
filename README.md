@@ -1,6 +1,6 @@
-# sourced_go - Event-Sourced ToDo Model Example in Go
+# sourced_go
 
-`sourced_go` is a Go-based implementation of an event-sourced architecture, inspired by the original [sourced](https://github.com/mateodelnorte/sourced) project by Matt Walters. Patrick Lee Scott (me), a contributor and maintainer of the original JavaScript version, has brought these concepts to Go, extending and refactoring it for Go's ecosystem.
+`sourced_go` is a Go-based implementation of an event-sourced architecture, inspired by the original [sourced](https://github.com/mateodelnorte/sourced) project by Matt Walters. Patrick Lee Scott (me), a contributor and maintainer of the original JavaScript/Typescript version, has brought these concepts to Go, extending and refactoring it for Go's ecosystem.
 
 This repository demonstrates how to manage a `ToDo` task using event-sourcing, repositories, and event-driven architecture with Go. The core concept revolves around capturing state changes as commands (or events) and rehydrating entities by replaying those events.
 
