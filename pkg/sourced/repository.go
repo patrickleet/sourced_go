@@ -7,7 +7,7 @@ import (
 // Repository manages events logs for event-sourced entities
 type Repository struct {
 	storage map[string][]EventRecord
-	mu      sync.Mutex
+	mu      sync.RWMutex
 }
 
 // NewRepository initializes a new repository
@@ -19,8 +19,8 @@ func NewRepository() *Repository {
 
 // FindByID retrieves an entity by ID, returning the raw generic Entity
 func (r *Repository) FindByID(id string) *Entity {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 
 	if events, exists := r.storage[id]; exists {
 		e := &Entity{ID: id}
