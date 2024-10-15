@@ -2,6 +2,7 @@ package todos
 
 import (
 	"sourced_go/pkg/sourced"
+	"sync"
 )
 
 // ToDoRepository provides domain-specific behavior for ToDo entities
@@ -37,19 +38,31 @@ func (r *ToDoRepository) Get(id string) *ToDo {
 }
 
 func (r *ToDoRepository) GetAll(ids []string) []*ToDo {
-	entities := r.Repository.GetAll(ids)
-	todos := make([]*ToDo, len(entities))
+	var todos []*ToDo
+	var mu sync.Mutex
+	var wg sync.WaitGroup
 
-	for i, entity := range entities {
-		todo := &ToDo{Entity: entity}
-		todo.Replaying = true
-		for _, event := range entity.Events {
-			todo.ReplayEvent(event)
-		}
-		todo.Replaying = false
-		todos[i] = todo
+	for _, id := range ids {
+		wg.Add(1)
+		go func(id string) {
+			defer wg.Done()
+			entity := r.Repository.Get(id)
+			if entity != nil {
+				todo := &ToDo{Entity: entity}
+				todo.Replaying = true
+				for _, event := range entity.Events {
+					todo.ReplayEvent(event)
+				}
+				todo.Replaying = false
+
+				mu.Lock()
+				todos = append(todos, todo)
+				mu.Unlock()
+			}
+		}(id)
 	}
 
+	wg.Wait()
 	return todos
 }
 
@@ -60,14 +73,27 @@ func (r *ToDoRepository) Commit(t *ToDo) {
 
 func (r *ToDoRepository) CommitAll(todos []*ToDo) {
 	entities := make([]*sourced.Entity, len(todos))
-	for i, todo := range todos {
-		entities[i] = todo.Entity
+	var wg sync.WaitGroup
+
+	for i := range todos {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			entities[i] = todos[i].Entity
+		}(i)
 	}
 
-	r.Repository.CommitAll(entities) // Commit all entities at once
+	wg.Wait()
+	r.Repository.CommitAll(entities)
 
-	// Emit queued events for each ToDo after committing
+	// Emit queued events in parallel
 	for _, todo := range todos {
-		todo.EmitQueuedEvents()
+		wg.Add(1)
+		go func(todo *ToDo) {
+			defer wg.Done()
+			todo.EmitQueuedEvents()
+		}(todo)
 	}
+
+	wg.Wait()
 }

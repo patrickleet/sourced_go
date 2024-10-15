@@ -72,7 +72,7 @@ func main() {
 	repo.CommitAll([]*todos.ToDo{all1, all2})
 
 	// Get all ToDos from the repository
-	allTodos := repo.GetAll([]string{"1", "2"})
+	allTodos := repo.GetAll([]string{"1", "2", "todo-id-1"})
 
 	if len(allTodos) > 0 {
 		fmt.Println("All Todos:", allTodos)

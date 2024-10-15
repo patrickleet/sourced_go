@@ -1,5 +1,7 @@
 package sourced
 
+import "sync"
+
 // Repository manages events logs for event-sourced entities
 type Repository struct {
 	storage map[string][]EventRecord
@@ -29,11 +31,22 @@ func (r *Repository) Get(id string) *Entity {
 
 func (r *Repository) GetAll(ids []string) []*Entity {
 	var entities []*Entity
+	var mu sync.Mutex // To protect shared data
+	var wg sync.WaitGroup
+
 	for _, id := range ids {
-		if entity := r.Get(id); entity != nil {
-			entities = append(entities, entity)
-		}
+		wg.Add(1)
+		go func(id string) {
+			defer wg.Done()
+			if entity := r.Get(id); entity != nil {
+				mu.Lock()
+				entities = append(entities, entity)
+				mu.Unlock()
+			}
+		}(id)
 	}
+
+	wg.Wait()
 	return entities
 }
 
@@ -47,13 +60,20 @@ func (r *Repository) Commit(e *Entity) {
 }
 
 func (r *Repository) CommitAll(entities []*Entity) {
+	var wg sync.WaitGroup
+
 	for _, entity := range entities {
-		// Store the event log for each entity
-		r.storage[entity.ID] = entity.Events
+		wg.Add(1)
+		go func(entity *Entity) {
+			defer wg.Done()
+			r.storage[entity.ID] = entity.Events
+		}(entity)
 	}
 
-	// After storing, emit events for each entity
+	// Emit all queued events for each entity
 	for _, entity := range entities {
 		entity.EmitQueuedEvents()
 	}
+
+	wg.Wait()
 }
