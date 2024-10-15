@@ -1,13 +1,8 @@
 package sourced
 
-import (
-	"sync"
-)
-
 // Repository manages events logs for event-sourced entities
 type Repository struct {
 	storage map[string][]EventRecord
-	mu      sync.RWMutex
 }
 
 // NewRepository initializes a new repository
@@ -17,11 +12,8 @@ func NewRepository() *Repository {
 	}
 }
 
-// FindByID retrieves an entity by ID, returning the raw generic Entity
-func (r *Repository) FindByID(id string) *Entity {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
+// Get retrieves an entity by ID, returning the raw generic Entity
+func (r *Repository) Get(id string) *Entity {
 	if events, exists := r.storage[id]; exists {
 		e := &Entity{ID: id}
 		e.Events = events // Load events, but don't rehydrate yet
@@ -35,14 +27,33 @@ func (r *Repository) FindByID(id string) *Entity {
 	return nil
 }
 
+func (r *Repository) GetAll(ids []string) []*Entity {
+	var entities []*Entity
+	for _, id := range ids {
+		if entity := r.Get(id); entity != nil {
+			entities = append(entities, entity)
+		}
+	}
+	return entities
+}
+
 // Commit stores the events executed on the entity
 func (r *Repository) Commit(e *Entity) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	// Store the events log (list of events)
 	r.storage[e.ID] = e.Events
 
 	// Emit all queued events
 	e.EmitQueuedEvents()
+}
+
+func (r *Repository) CommitAll(entities []*Entity) {
+	for _, entity := range entities {
+		// Store the event log for each entity
+		r.storage[entity.ID] = entity.Events
+	}
+
+	// After storing, emit events for each entity
+	for _, entity := range entities {
+		entity.EmitQueuedEvents()
+	}
 }
